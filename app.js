@@ -97,8 +97,8 @@ app.post('/aluno', cors(), jsonParser, async function(request, response){
             const novoAluno =  await controllerAluno.novoAluno(dadosBody)
 
             if(novoAluno == true){
-                statusCode = 201
-                message = MESSAGE_SUCCESS.INSERT_ITEM               
+                statusCode = novoAluno.status
+                message = novoAluno.message
             }else{
                 statusCode = 400
                 message = novoAluno
@@ -116,6 +116,55 @@ app.post('/aluno', cors(), jsonParser, async function(request, response){
 
     response.status(statusCode)
     response.json(message)
+})
+
+app.put('/aluno/:id', cors(), jsonParser, async function(request, response){
+    let statusCode
+    let message
+    let headerContentType
+
+    //content-type = traz o formato dos dados da requisição
+    //mostra o tipo de content-type enviado pelo header da requisição
+    headerContentType = request.headers['content-type']
+
+    //valida se o content-type é do tipo application/json
+    if(headerContentType == 'application/json'){
+
+        //recebe o corpo/conteúdo da mensagem
+        let dadosBody = request.body
+
+        //realiza o processo de conversão de dados para
+        //conseguir comparar o json vazio
+        if(JSON.stringify(dadosBody)!='{}'){
+
+            //import do arquivo da controller de aluno
+            const controllerAluno = require('./controller/controllerAluno.js')
+
+            //chama a função novo aluno da controller e encaminha os dados do body
+            const atualizaAluno =  await controllerAluno.atualizarAluno(dadosBody)
+
+            if(atualizaAluno == true){
+                statusCode = atualizaAluno.status
+                message = atualizaAluno.message
+            }else{
+                statusCode = 400
+                message = atualizaAluno
+            }
+
+        }else{
+            statusCode = 400
+            message = MESSAGE_ERROR.EMPTY_BODY
+        }
+
+    }else{
+        statusCode = 415
+        message = MESSAGE_ERROR.CONTENT_TYPE
+    }
+
+    response.status(statusCode)
+    response.json(message)
+
+    console.log(message)
 })
 
 //Ativa o servidor para receber requisições HTTP

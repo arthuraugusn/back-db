@@ -9,32 +9,60 @@
 
 //Função para inserir um novo registro no BD
 const insertAluno = async function(aluno){
-    //import da classe prisma client que é responsável pelas interações com o BD
-    const {PrismaClient} = require('@prisma/client')
+    try{
+        //import da classe prisma client que é responsável pelas interações com o BD
+        const {PrismaClient} = require('@prisma/client')
 
-    //instancia da classe PrismaClient
-    const prisma = new PrismaClient()
+        //instancia da classe PrismaClient
+        const prisma = new PrismaClient()
 
-    //variavel que armazenará o script do sql
-    let sql = `insert into tbl_aluno (nome, foto, rg, cpf, email, data_nascimento, telefone, celular, sexo)
-               values('${aluno.nome}', '${aluno.foto}', '${aluno.rg}', '${aluno.cpf}', '${aluno.email}',
-               '${aluno.data_nascimento}', '${aluno.telefone}', '${aluno.celular}', '${aluno.sexo}')`
-    
-    //executa o script sql no banco de dados
-    //OBS ($executeRawUnsafe) => permite encaminhar uma variável contendo o script
-    const result = await prisma.$executeRawUnsafe(sql)
+        //variavel que armazenará o script do sql
+        let sql = `insert into tbl_aluno (nome, foto, rg, cpf, email, data_nascimento, telefone, celular, sexo)
+                values('${aluno.nome}', '${aluno.foto}', '${aluno.rg}', '${aluno.cpf}', '${aluno.email}',
+                '${aluno.data_nascimento}', '${aluno.telefone}', '${aluno.celular}', '${aluno.sexo}')`
+        
+        //executa o script sql no banco de dados
+        //OBS ($executeRawUnsafe) => permite encaminhar uma variável contendo o script
+        const result = await prisma.$executeRawUnsafe(sql)
 
-    //verifica se o script foi executado com sucesso no banco de dados
-    if(result)
-        return true
-    else
+        //verifica se o script foi executado com sucesso no banco de dados
+        if(result)
+            return true
+        else
+            return false   
+    }catch(error){
         return false
-
+    }
 }
 
 //Função para atualizar um registro do BD
 const updateAluno = async function(aluno){
+    try{
+        //import da classe prisma client que é responsável pelas interações com o BD
+        const {PrismaClient} = require('@prisma/client')
 
+        //instancia da classe PrismaClient
+        const prisma = new PrismaClient()
+
+        //variavel que armazenará o script do sql
+        let sql = `update tbl_aluno set "nome"= "${aluno.nome}", "foto" = "${aluno.foto}", "rg= ${aluno.rg}",
+                    "cpf" = "${aluno.cpf}", "email" = "${aluno.email}", "data_nascimento" = "${aluno.data_nascimento}",
+                    "telefone" = "${aluno.telefone}", "celular" = "${aluno.celular}", "sexo" = "${aluno.sexo}"
+                    
+                    where id = '${aluno.id}'`
+        
+        //executa o script sql no banco de dados
+        //OBS ($executeRawUnsafe) => permite encaminhar uma variável contendo o script
+        const result = await prisma.$executeRawUnsafe(sql)
+
+        //verifica se o script foi executado com sucesso no banco de dados
+        if(result)
+            return true
+        else
+            return false   
+    }catch(error){
+        return false
+    }
 }
 
 //Função para deletar um registro do BD
@@ -67,5 +95,6 @@ const selectAllAlunos = async function(){
 
 module.exports={
     selectAllAlunos,
-    insertAluno
+    insertAluno,
+    updateAluno
 }

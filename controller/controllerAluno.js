@@ -11,15 +11,16 @@ const {MESSAGE_ERROR, MESSAGE_SUCCESS} = require('../modulos/config.js')
 
 //Função para gerar um novo registro de um novo aluno
 const novoAluno = async function(aluno){
+
     //verifica se algum dos atributos obrigatórios é vázio
     if(aluno.nome == '' || aluno.nome == undefined || aluno.foto == '' || aluno.foto == undefined || aluno.rg == ''|| aluno.rg == undefined
        || aluno.cpf == '' || aluno.cpf == undefined || aluno.email == '' || aluno.email == undefined || aluno.data_nascimento == '' 
        || aluno.data_nascimento == undefined)
-        return MESSAGE_ERROR.REQUIRED_FIELD
+        return {status: 400, message: MESSAGE_ERROR.REQUIRED_FIELD}
 
     //validação para verificar email válido
     else if(!aluno.email.includes('@'))
-        return MESSAGE_ERROR.INVALID_EMAIL
+        return {status: 400, message: MESSAGE_ERROR.INVALID_EMAIL}
     else{
         //import da model de aluno
         const novoAluno = require('../model/DAO/aluno.js')
@@ -28,20 +29,45 @@ const novoAluno = async function(aluno){
         const result = await novoAluno.insertAluno(aluno)
 
         if(result)
-            return true
+            return {status: 201, message: MESSAGE_SUCCESS.INSERT_ITEM}
         else
-            return MESSAGE_ERROR.INTERNAL_ERROR_DB
+            return {status:500, message:MESSAGE_ERROR.INTERNAL_ERROR_DB}
     }
 }
 
 //Função para atualizar o registro do aluno
 const atualizarAluno = async function(aluno){
 
+    //validação para o id como campo obrigatório
+    if(aluno.id == '' || aluno.id == undefined){
+        return {status: 400, message: MESSAGE_ERROR.REQUIRED_ID}
+    }
+    //verifica se algum dos atributos obrigatórios é vázio
+    else if(aluno.nome == '' || aluno.nome == undefined || aluno.foto == '' || aluno.foto == undefined || aluno.rg == ''|| aluno.rg == undefined
+       || aluno.cpf == '' || aluno.cpf == undefined || aluno.email == '' || aluno.email == undefined || aluno.data_nascimento == '' 
+       || aluno.data_nascimento == undefined)
+        return {status: 400, message: MESSAGE_ERROR.REQUIRED_FIELD}
+
+    //validação para verificar email válido
+    else if(!aluno.email.includes('@'))
+        return {status: 400, message: MESSAGE_ERROR.INVALID_EMAIL}
+    else{
+        //import da model de aluno
+        const attAluno = require('../model/DAO/aluno.js')
+
+        //chama a função para atualizar um novo aluno
+        const result = await attAluno.updateAluno(aluno)
+
+        if(result)
+            return {status: 201, message: MESSAGE_SUCCESS.INSERT_ITEM}
+        else
+            return {status:500, message:MESSAGE_ERROR.INTERNAL_ERROR_DB}
+    }
 }
 
 //Função para excluir um registro de um aluno
 const deletarAluno = async function(id){
-
+    
 }
 
 //Função para retornar todos os registros
@@ -68,5 +94,6 @@ const listarAluno = async function(){
 
 module.exports={
     listarAluno,
-    novoAluno
+    novoAluno,
+    atualizarAluno
 }
