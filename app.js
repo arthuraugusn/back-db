@@ -17,6 +17,9 @@ const express = require('express')
 const bodyParser = require('body-parser')
 
 const cors = require('cors')
+//Arquivo de mensagens padronizadas
+const {MESSAGE_ERROR, MESSAGE_SUCCESS} = require('./modulos/config.js')
+
 const { header } = require('express/lib/request')
 
 const app = express()
@@ -56,7 +59,7 @@ app.get('/alunos', cors(), async function(request, response){
     }else{
         //Status 404
         statusCode = 404
-        message = "Nenhum aluno encontrado"
+        message = MESSAGE_ERROR.NOT_FOUND_DB
     }
 
     //Retorna os dados da API
@@ -93,22 +96,22 @@ app.post('/aluno', cors(), jsonParser, async function(request, response){
             //chama a função novo aluno da controller e encaminha os dados do body
             const novoAluno =  await controllerAluno.novoAluno(dadosBody)
 
-            if(novoAluno){
+            if(novoAluno == true){
                 statusCode = 201
-                message = 'Item adicionado com sucesso'                
+                message = MESSAGE_SUCCESS.INSERT_ITEM               
             }else{
                 statusCode = 400
-                message = 'O item não pode ser adicionado'
+                message = novoAluno
             }
 
         }else{
             statusCode = 400
-            message = 'Este tipo de requisiçãp precisa de conteúdo no Body!'
+            message = MESSAGE_ERROR.EMPTY_BODY
         }
 
     }else{
         statusCode = 415
-        message = 'Conteny-Type incorreto. Esta requisição aceita apenas: (application/json)'
+        message = MESSAGE_ERROR.CONTENT_TYPE
     }
 
     response.status(statusCode)

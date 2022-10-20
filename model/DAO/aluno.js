@@ -44,21 +44,25 @@ const deleteAluno = async function(id){
 
 //Função para selecionar todos os registros do BD
 const selectAllAlunos = async function(){
-    //import da classe prisma client que é responsável pelas interações com o BD
-    const {PrismaClient} = require('@prisma/client')
+    try{
+        //import da classe prisma client que é responsável pelas interações com o BD
+        const {PrismaClient} = require('@prisma/client')
 
-    //instancia da classe PrismaClient
-    const prisma = new PrismaClient()
-
-    //criamos um objeto do tipo RecordSettings para receber os dados do BD
-    //através do script sql 'select'
-    const rsAlunos = await prisma.$queryRaw `select cast(id as float) as id, nome, foto, sexo,
-    rg, cpf, email, telefone, celular from tbl_aluno order by id desc`
-
-    if(rsAlunos.length >0)
-        return rsAlunos
-    else
+        //instancia da classe PrismaClient
+        const prisma = new PrismaClient()
+    
+        //criamos um objeto do tipo RecordSettings para receber os dados do BD
+        //através do script sql 'select'
+        const rsAlunos = await prisma.$queryRaw `select cast(id as float) as id, nome, foto, sexo,
+        rg, cpf, email, telefone, celular from tbl_aluno order by id desc`
+    
+        if(rsAlunos.length >0)
+            return rsAlunos
+        else
+            return false
+    }catch(error){
         return false
+    }
 }
 
 module.exports={

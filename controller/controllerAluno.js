@@ -6,6 +6,8 @@
 - VERSÃO: 1.0
 
 */
+//Arquivo de mensagens padronizadas
+const {MESSAGE_ERROR, MESSAGE_SUCCESS} = require('../modulos/config.js')
 
 //Função para gerar um novo registro de um novo aluno
 const novoAluno = async function(aluno){
@@ -13,22 +15,22 @@ const novoAluno = async function(aluno){
     if(aluno.nome == '' || aluno.nome == undefined || aluno.foto == '' || aluno.foto == undefined || aluno.rg == ''|| aluno.rg == undefined
        || aluno.cpf == '' || aluno.cpf == undefined || aluno.email == '' || aluno.email == undefined || aluno.data_nascimento == '' 
        || aluno.data_nascimento == undefined)
-        return false
+        return MESSAGE_ERROR.REQUIRED_FIELD
 
     //validação para verificar email válido
     else if(!aluno.email.includes('@'))
-        return false
+        return MESSAGE_ERROR.INVALID_EMAIL
     else{
         //import da model de aluno
         const novoAluno = require('../model/DAO/aluno.js')
 
         //chama a função para inserir um novo aluno
-        const result = novoAluno.insertAluno(aluno)
+        const result = await novoAluno.insertAluno(aluno)
 
         if(result)
             return true
         else
-            return false
+            return MESSAGE_ERROR.INTERNAL_ERROR_DB
     }
 }
 
