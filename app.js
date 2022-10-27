@@ -41,7 +41,7 @@ const jsonParser = bodyParser.json()
 */
 
 //End-Point para listar todos os alunos
-app.get('/alunos', cors(), async function(request, response){
+app.get('/v1/alunos', cors(), async function(request, response){
     let statusCode
     let message
 
@@ -67,12 +67,81 @@ app.get('/alunos', cors(), async function(request, response){
     response.json(message)
 })
 
-//End-Point para inserir um novo aluno
-app.post('/aluno', cors(), jsonParser, async function(request, response){
+//End-Point de registrar um aluno 
+app.put('/v1/aluno/:id', cors(), jsonParser, async function(request, response){
     let statusCode
     let message
-    
-    //
+    let headerContentType
+
+    //content-type = traz o formato dos dados da requisição
+    //mostra o tipo de content-type enviado pelo header da requisição
+    headerContentType = request.headers['content-type']
+
+    //valida se o content-type é do tipo application/json
+    if(headerContentType == 'application/json'){
+
+        //recebe o corpo/conteúdo da mensagem
+        let dadosBody = request.body
+
+        //realiza o processo de conversão de dados para
+        //conseguir comparar o json vazio
+        if(JSON.stringify(dadosBody)!='{}'){
+
+            let id = request.params.id
+
+            if(id != '' && id !=undefined){
+                dadosBody.id = id
+
+                //import do arquivo da controller de aluno
+                const controllerAluno = require('./controller/controllerAluno.js')
+
+                //chama a função novo aluno da controller e encaminha os dados do body
+                const atualizaAluno =  await controllerAluno.atualizarAluno(dadosBody)
+
+                statusCode = atualizaAluno.status
+                message = atualizaAluno.message
+            } else{
+                statusCode = 400
+                message = MESSAGE_ERROR.REQUIRED_ID
+            }
+        } else{
+            statusCode = 400
+            message = MESSAGE_ERROR.EMPTY_BODY
+        }
+    } else{
+        statusCode = 415
+        message = MESSAGE_ERROR.CONTENT_TYPE
+    }
+
+    response.status(statusCode)
+    response.json(message)
+})
+
+//End-Point para deletar um aluno por id
+app.delete('/v1/aluno/:id', cors(), jsonParser, async function(request, response, next){
+    let statusCode
+    let message
+    let id = request.params.id
+
+    if(id != '' && id !=undefined){
+        const controllerAluno = require('./controller/controllerAluno.js')
+
+        const deletarAluno = await controllerAluno.deletarAluno(id)
+        
+        statusCode = deletarAluno.status
+        message = deletarAluno.message
+    } else{
+        statusCode = 400
+        message = MESSAGE_ERROR.REQUIRED_ID
+    }
+    response.status(statusCode)
+    response.json(message)
+})
+
+//End-Point para inserir um novo aluno
+app.post('/v1/aluno', cors(), jsonParser, async function(request, response){
+    let statusCode
+    let message
     let headerContentType
 
 
@@ -94,14 +163,14 @@ app.post('/aluno', cors(), jsonParser, async function(request, response){
             const controllerAluno = require('./controller/controllerAluno.js')
 
             //chama a função novo aluno da controller e encaminha os dados do body
-            const novoAluno =  await controllerAluno.novoAluno(dadosBody)
+            const newAluno =  await controllerAluno.novoAluno(dadosBody)
 
-            if(novoAluno == true){
-                statusCode = novoAluno.status
-                message = novoAluno.message
+            if(newAluno == true){
+                statusCode = newAluno.status
+                message = newAluno.message
             }else{
                 statusCode = 400
-                message = novoAluno
+                message = newAluno
             }
 
         }else{
@@ -118,53 +187,31 @@ app.post('/aluno', cors(), jsonParser, async function(request, response){
     response.json(message)
 })
 
-app.put('/aluno/:id', cors(), jsonParser, async function(request, response){
+//End-Point para buscar aluno por id
+app.get('/v1/aluno/:id', cors(), async function(request, response, next){
     let statusCode
     let message
-    let headerContentType
+    let id = request.params.id
 
-    //content-type = traz o formato dos dados da requisição
-    //mostra o tipo de content-type enviado pelo header da requisição
-    headerContentType = request.headers['content-type']
+    if(id != ''&& id != undefined){
+        const controllerAluno = require('./controller/controllerAluno.js')
 
-    //valida se o content-type é do tipo application/json
-    if(headerContentType == 'application/json'){
+        const dadosAluno = await controllerAluno.buscarAlunoId(id)
 
-        //recebe o corpo/conteúdo da mensagem
-        let dadosBody = request.body
-
-        //realiza o processo de conversão de dados para
-        //conseguir comparar o json vazio
-        if(JSON.stringify(dadosBody)!='{}'){
-
-            //import do arquivo da controller de aluno
-            const controllerAluno = require('./controller/controllerAluno.js')
-
-            //chama a função novo aluno da controller e encaminha os dados do body
-            const atualizaAluno =  await controllerAluno.atualizarAluno(dadosBody)
-
-            if(atualizaAluno == true){
-                statusCode = atualizaAluno.status
-                message = atualizaAluno.message
-            }else{
-                statusCode = 400
-                message = atualizaAluno
-            }
-
-        }else{
-            statusCode = 400
-            message = MESSAGE_ERROR.EMPTY_BODY
+        if(dadosAluno){
+            statusCode = 200
+            message = dadosAluno
+        } else{
+            statusCode = 404
+            message = MESSAGE_ERROR.NOT_FOUND_DB
         }
-
-    }else{
-        statusCode = 415
-        message = MESSAGE_ERROR.CONTENT_TYPE
+    } else{
+        statusCode = 400
+        message = MESSAGE_ERROR.REQUIRED_ID
     }
 
     response.status(statusCode)
     response.json(message)
-
-    console.log(message)
 })
 
 //Ativa o servidor para receber requisições HTTP

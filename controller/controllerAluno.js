@@ -13,25 +13,24 @@ const {MESSAGE_ERROR, MESSAGE_SUCCESS} = require('../modulos/config.js')
 const novoAluno = async function(aluno){
 
     //verifica se algum dos atributos obrigatórios é vázio
-    if(aluno.nome == '' || aluno.nome == undefined || aluno.foto == '' || aluno.foto == undefined || aluno.rg == ''|| aluno.rg == undefined
-       || aluno.cpf == '' || aluno.cpf == undefined || aluno.email == '' || aluno.email == undefined || aluno.data_nascimento == '' 
-       || aluno.data_nascimento == undefined)
-        return {status: 400, message: MESSAGE_ERROR.REQUIRED_FIELD}
-
+    if (aluno.nome == '' || aluno.nome == undefined || aluno.foto == '' || aluno.foto == undefined || aluno.rg == '' || aluno.rg == undefined || aluno.cpf == '' || aluno.cpf == undefined || aluno.email == '' || aluno.email == undefined || aluno.data_nascimento == '' || aluno.data_nascimento == undefined) {
+        return {status: 400, message: MESSAGE_ERROR.REQUIRED_FIELDS}
+    }
     //validação para verificar email válido
-    else if(!aluno.email.includes('@'))
+    else if (!aluno.email.includes('@')) {
         return {status: 400, message: MESSAGE_ERROR.INVALID_EMAIL}
+    } 
+    //import da model de aluno
+    const novoAluno = require('../model/DAO/aluno.js')
+
+    //chama a função para inserir um novo aluno
+    const result = await novoAluno.insertAluno(aluno)
+
+    if(result){
+        return {status: 201, message: MESSAGE_SUCCESS.INSERT_ITEM}
+    }
     else{
-        //import da model de aluno
-        const novoAluno = require('../model/DAO/aluno.js')
-
-        //chama a função para inserir um novo aluno
-        const result = await novoAluno.insertAluno(aluno)
-
-        if(result)
-            return {status: 201, message: MESSAGE_SUCCESS.INSERT_ITEM}
-        else
-            return {status:500, message:MESSAGE_ERROR.INTERNAL_ERROR_DB}
+        return {status:500, message:MESSAGE_ERROR.INTERNAL_ERROR_DB}
     }
 }
 
@@ -43,31 +42,55 @@ const atualizarAluno = async function(aluno){
         return {status: 400, message: MESSAGE_ERROR.REQUIRED_ID}
     }
     //verifica se algum dos atributos obrigatórios é vázio
-    else if(aluno.nome == '' || aluno.nome == undefined || aluno.foto == '' || aluno.foto == undefined || aluno.rg == ''|| aluno.rg == undefined
-       || aluno.cpf == '' || aluno.cpf == undefined || aluno.email == '' || aluno.email == undefined || aluno.data_nascimento == '' 
-       || aluno.data_nascimento == undefined)
+    else if(aluno.nome == '' || aluno.nome == undefined || aluno.foto == '' || aluno.foto == undefined || aluno.rg == ''|| aluno.rg == undefined|| aluno.cpf == '' || aluno.cpf == undefined || aluno.email == '' || aluno.email == undefined || aluno.data_nascimento == '' || aluno.data_nascimento == undefined){
         return {status: 400, message: MESSAGE_ERROR.REQUIRED_FIELD}
+    }
 
     //validação para verificar email válido
-    else if(!aluno.email.includes('@'))
+    else if(!aluno.email.includes('@')){
         return {status: 400, message: MESSAGE_ERROR.INVALID_EMAIL}
-    else{
-        //import da model de aluno
-        const attAluno = require('../model/DAO/aluno.js')
-
-        //chama a função para atualizar um novo aluno
-        const result = await attAluno.updateAluno(aluno)
-
-        if(result)
-            return {status: 201, message: MESSAGE_SUCCESS.INSERT_ITEM}
-        else
-            return {status:500, message:MESSAGE_ERROR.INTERNAL_ERROR_DB}
     }
+
+    const atualizarAluno = require('../model/DAO/aluno.js')
+    const verificar = await atualizarAluno.selectByIdAluno(aluno.id)
+
+    if(verificar){
+        const result = await atualizarAluno.updateAluno(aluno)
+
+        if(result){
+            return {status: 200, message: MESSAGE_SUCCESS.UPDATE_ITEM}
+        }else{
+            return {status: 500, message: MESSAGE_ERROR.INTERNAL_ERROR_DB}
+        }
+    }
+    
+    else{
+        return {status: 404, message: MESSAGE_ERROR.NOT_FOUND_DB}
+    }
+
 }
 
 //Função para excluir um registro de um aluno
 const deletarAluno = async function(id){
+    if (id == '' || id == undefined) {
+        return {status: 400, message: MESSAGE_ERROR.REQUIRED_ID}
+    }
+
+    const deletarAluno = require('../model/DAO/aluno.js')
+    const verificar = await deletarAluno.selectByIdAluno(id)
+
+    if (verificar) {
+        
+        const result = await deletarAluno.deleteAluno(id)
     
+        if (result) {
+            return {status: 200, message: MESSAGE_SUCCESS.DELETE_ITEM}
+        } else{
+            return {message: MESSAGE_ERROR.INTERNAL_ERROR_DB, status: 500}
+        }
+    } else{
+        return {message: MESSAGE_ERROR.NOT_FOUND_DB, status: 404} 
+    }
 }
 
 //Função para retornar todos os registros
@@ -92,8 +115,29 @@ const listarAluno = async function(){
         return false
 }
 
+const buscarAlunoId = async function(id){
+    let dadosALunoJSON = {}
+
+    if (id == '' || id == undefined){
+        return {status: 400, message: MESSAGE_ERROR.REQUIRED_ID}
+    }
+
+    const {selectByIdAluno} = require('../model/DAO/aluno.js')
+    const dadosAluno = await selectByIdAluno(id)
+
+    if(dadosAluno){
+        dadosALunoJSON.alunos = dadosAluno
+
+        return dadosALunoJSON
+    }else{
+        return false
+    }
+}
+
 module.exports={
     listarAluno,
     novoAluno,
-    atualizarAluno
+    atualizarAluno,
+    deletarAluno,
+    buscarAlunoId
 }
