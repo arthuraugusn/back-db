@@ -1,6 +1,6 @@
 /*
 
-- OBJETIVO: Arquivo responsável pela manipulação de recebimento, tratamento e retorno de dados entre a API e a model
+- OBJETIVO: Arquivo responsável pela manipulação de recebimento, tratamento e retorno de dados entre a API e a model dos alunos
 - AUTOR: Arthur Augusto da Silva Nunes
 - DATA DE CRIAÇÃO: 06/10/2022
 - VERSÃO: 1.0

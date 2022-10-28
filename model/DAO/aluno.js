@@ -1,6 +1,6 @@
 /* 
 
-- OBJETIVO: Arquivo responsável pela manipulação de dados com o Banco de Dados. Insert, Update, Delete e Select
+- OBJETIVO: Arquivo responsável pela manipulação de dados dos alunos com o Banco de Dados. Insert, Update, Delete e Select
 - AUTOR: Arthur Augusto da Silva Nunes
 - DATA DE CRIAÇÃO: 06/10/2022
 - VERSÃO: 1.0
@@ -20,8 +20,6 @@ const insertAluno = async function(aluno){
         let sql = `insert into tbl_aluno(nome, foto, rg, cpf, email, data_nascimento, telefone, celular, sexo)
                         values('${aluno.nome}', '${aluno.foto}', '${aluno.rg}', '${aluno.cpf}', '${aluno.email}', '${aluno.data_nascimento}', '${aluno.telefone}', '${aluno.celular}', '${aluno.sexo}')`
         
-
-        console.log(sql)
         
         //executa o script sql no banco de dados
         //OBS ($executeRawUnsafe) => permite encaminhar uma variável contendo o script
