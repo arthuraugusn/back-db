@@ -136,10 +136,30 @@ const selectByIdAluno = async function(id){
     }
 }
 
+//Função para retornar o último id gerado do banco
+const selectLastId =async function(){
+    const {PrismaClient} = require('@prisma/client')
+
+    const prisma = new PrismaClient()
+
+    //Script para buscar o último id gerado no banco de dados
+    let sql = `select cast(id as float) as  id 
+                from tbl_aluno order by id desc limit 1`
+
+    const id = await prisma.$executeRawUnsafe(sql)
+
+    if(id.length> 0 ){
+        return id
+    }else{
+        return false
+    }
+}
+
 module.exports={
     selectAllAlunos,
     insertAluno,
     updateAluno,
     deleteAluno,
-    selectByIdAluno
+    selectByIdAluno,
+    selectLastId
 }

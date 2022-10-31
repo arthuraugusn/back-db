@@ -12,9 +12,7 @@ const {MESSAGE_ERROR, MESSAGE_SUCCESS} = require('../modulos/config.js')
 const novoCurso = async function(curso){
     
     if(curso.nome == ''|| curso.nome == undefined ||curso.carga_horaria == ''|| curso.carga_horaria == undefined ){
-        
         return {status: 400, message: MESSAGE_ERROR.REQUIRED_FIELD}
-
     }
 
     const novoCurso = require('../model/DAO/curso.js')

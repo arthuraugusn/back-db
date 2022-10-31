@@ -19,18 +19,29 @@ const novoAluno = async function(aluno){
     //validação para verificar email válido
     else if (!aluno.email.includes('@')) {
         return {status: 400, message: MESSAGE_ERROR.INVALID_EMAIL}
-    } 
-    //import da model de aluno
-    const novoAluno = require('../model/DAO/aluno.js')
+    } else{
+        //import da model de aluno
+        const novoAluno = require('../model/DAO/aluno.js')
 
-    //chama a função para inserir um novo aluno
-    const result = await novoAluno.insertAluno(aluno)
+        //chama a função para inserir um novo aluno
+        const resultNovoAluno = await novoAluno.insertAluno(aluno)
 
-    if(result){
-        return {status: 201, message: MESSAGE_SUCCESS.INSERT_ITEM}
-    }
-    else{
-        return {status:500, message:MESSAGE_ERROR.INTERNAL_ERROR_DB}
+        //Verifica se os dados do novo aluno foi inserido no banco de dados
+        if(resultNovoAluno){
+            //Chama a função que verifica qual o id gerado para o novo aluno
+            let idNovoAluno = await novoAluno.selectLastId()
+
+            if(idNovoAluno>0){
+                return idNovoAluno
+            }
+        }
+
+        if(resultNovoAluno){
+            return {status: 201, message: MESSAGE_SUCCESS.INSERT_ITEM}
+        }
+        else{
+            return {status:500, message:MESSAGE_ERROR.INTERNAL_ERROR_DB}
+        }
     }
 }
 
