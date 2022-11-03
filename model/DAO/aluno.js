@@ -146,10 +146,10 @@ const selectLastId =async function(){
     let sql = `select cast(id as float) as  id 
                 from tbl_aluno order by id desc limit 1`
 
-    const id = await prisma.$executeRawUnsafe(sql)
+    const rsAluno = await prisma.$queryRawUnsafe(sql)
 
-    if(id.length> 0 ){
-        return id
+    if(rsAluno){
+        return rsAluno[0].id
     }else{
         return false
     }

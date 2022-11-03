@@ -11,8 +11,9 @@ const insertAlunoCurso = async function(alunoCurso){
     const {PrismaClient} = require('@prisma/client')
     const prisma = new PrismaClient()
 
-    let sql = `insert into tbl_aluno_curso(id_aluno, id_curso)
-    values('${alunoCurso.idAluno}', '${alunoCurso.idCurso}')`
+    let sql = `insert into tbl_aluno_curso(id_aluno, id_curso, matricula, status_aluno)
+                values(${alunoCurso.id_aluno}, ${alunoCurso.id_curso}, '${alunoCurso.matricula}', '${alunoCurso.status_aluno}')`
+
 
     const result = await prisma.$queryRawUnsafe(sql)
 
@@ -21,4 +22,33 @@ const insertAlunoCurso = async function(alunoCurso){
     } else{
         return false
     }
+}
+
+const selectAlunoCurso = async function(idAluno){
+    const {PrismaClient} = require('@prisma/client')
+    const prisma = new PrismaClient()
+
+    let sql = `select cast(tbl_curso.id as float) as id_curso , tbl_curso.id as id_curso, tbl_curso.nome as nome_curso, tbl_curso.carga_horaria, tbl_curso.sigla as sigla_curso,
+                tbl_aluno_curso.status_aluno, tbl_aluno_curso.matricula  
+
+                from tbl_aluno
+                    inner join tbl_aluno_curso
+                        on tbl_aluno.id = tbl_aluno_curso.id_aluno
+                    inner join tbl_curso
+                        on tbl_curso.id = tbl_aluno_curso.id_curso
+                        
+                        where tbl_aluno.id = ${idAluno}`
+
+    const rsAlunosCurso = await prisma.$queryRawUnsafe(sql)
+
+    if(rsAlunosCurso.length > 0){
+        return rsAlunosCurso
+    }else{
+        return false
+    }
+}
+
+module.exports={
+    insertAlunoCurso,
+    selectAlunoCurso
 }

@@ -139,6 +139,11 @@ app.get('/v1/curso/:id', cors(), async function(request, response, next){
     response.json(message)
 })
 
+//End-Point de buscar o aluno matriculado em algum curso
+app.get('/v1/aluno/curso', cors(), async function(request, response, next){
+    
+})
+
 //End-Point de atualizar um aluno 
 app.put('/v1/aluno/:id', cors(), jsonParser, async function(request, response){
     let statusCode
