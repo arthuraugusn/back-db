@@ -14,7 +14,7 @@ const {listarCurso} = require('./controllerCurso.js')
 const novoAluno = async function(aluno){
 
     //import da model de aluno
-    const novoAluno = require('../model/DAO/aluno.js')
+    const newAluno = require('../model/DAO/aluno.js')
     //import da model de aluno curso (tabela de relação) 
     const novoAlunoCurso = require('../model/DAO/aluno_curso.js')
 
@@ -27,10 +27,10 @@ const novoAluno = async function(aluno){
         return {status: 400, message: MESSAGE_ERROR.INVALID_EMAIL}
     } else{
         //chama a função para inserir um novo aluno
-        const resultNovoAluno = await novoAluno.insertAluno(aluno)
+        const resultNovoAluno = await newAluno.insertAluno(aluno)
 
         //Chama a função que verifica qual o id gerado para o novo aluno
-        let idNovoAluno = await novoAluno.selectLastId()
+        let idNovoAluno = await newAluno.selectLastId()
 
         //Verifica se os dados do novo aluno foi inserido no banco de dados
         if(resultNovoAluno){
@@ -133,13 +133,15 @@ const deletarAluno = async function(id){
 
 //Função para retornar todos os registros
 const listarAluno = async function(){
+    let dadosAlunosJSON = {}
+    /* let alunosCursoArray = [] */
+    
+    //import da model aluno_curso
     const{selectAllAlunos} = require('../model/DAO/aluno.js')
     const{selectAlunoCurso} = require('../model/DAO/aluno_curso.js')
 
+    //busca todos os alunos
     const dadosAlunos = await selectAllAlunos()
-    const dadosCurso = await selectAlunoCurso()
-
-    let dadosAlunosJSON = {}
 
     if(dadosAlunos){
         //Provisóriamente altera o id que se tornou um BigInt para um Int
@@ -147,9 +149,28 @@ const listarAluno = async function(){
             elemento.id = Number(elemento.id)
         }) */
 
+        const alunosCursoArray = dadosAlunos.map(async itemAluno=>{
+
+            //busca os dados refetentes ao curso do aluno
+            const dadosAlunoCurso = await selectAlunoCurso(itemAluno.id)
+            
+            if(dadosAlunoCurso){
+                //acrescenta uma chave curso e coloca os dados do curso do aluno
+                itemAluno.curso = dadosAlunoCurso
+            }else{
+                itemAluno.curso = MESSAGE_ERROR.NOT_FOUND_COURSE
+            }
+
+            //Adiciona array contendo dados do aluno e seu curso
+            return itemAluno
+        })
+
+        
+
         //transforma o array de dadosAlunos em JSON
         //dadosAlunosJSON.alunos = dadosAlunos.reverse() -> pode ser uma opção para reverter a lista
-        dadosAlunosJSON.alunos = dadosAlunos
+        dadosAlunosJSON.alunos = await Promise.all(alunosCursoArray)
+
         return dadosAlunosJSON
     }
     else
@@ -171,9 +192,8 @@ const buscarAlunoId = async function(id){
     if(dadosAluno){
 
         if(dadosAlunoCurso){
-            dadosAluno[0].curso = dadosAlunoCurso
-
             dadosAlunoJSON.aluno = dadosAluno
+            dadosAluno[0].curso = dadosAlunoCurso
 
             return dadosAlunoJSON   
         }else{

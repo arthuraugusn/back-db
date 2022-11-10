@@ -14,7 +14,8 @@ const MESSAGE_ERROR = {
     EMPTY_BODY:         'O Body da requisição deve haver um conteúdo',
     NOT_FOUND_DB:       'Não foram encontrados registros no Banco de Dados',
     INTERNAL_ERROR_DB:  'Não foi possível realizar a operação com o Banco de Dados',
-    REQUIRED_ID:        'O id do registro é obrigatório neste tipo de requisição'
+    REQUIRED_ID:        'O id do registro é obrigatório neste tipo de requisição',
+    NOT_FOUND_COURSE:   'Nenhum curso matriculado'
 }
 
 const MESSAGE_SUCCESS={
